@@ -1,4 +1,6 @@
-import ReactXnft, { Text, View, List, ListItem, Button } from "react-xnft";
+import ReactXnft, { Text, View, List, ListItem, Button, usePublicKey, useConnection } from "react-xnft";
+import React from "react";
+import { Transaction, SystemProgram, PublicKey } from "@solana/web3.js";
 
 //
 // On connection to the host environment, warm the cache.
@@ -27,9 +29,21 @@ const listOfCharities = [
 ];
 
 export function App() {
+  const publicKey = usePublicKey();
+  const connection = useConnection();
 
-  const onClickOnListItem = (c: any) => {
+  const onClickOnListItem = async (c: any) => {
     // send donation transaction
+    const ix = SystemProgram.transfer({
+      fromPubkey: publicKey,
+      toPubkey: new PublicKey(c.address),
+      lamports: 0.0001 * 1_000_000_000,
+    });
+    const tx = new Transaction();
+    tx.add(ix);
+
+    const res = await window.xnft.send(tx);
+    console.log(res);
   }
 
   return (
@@ -38,7 +52,7 @@ export function App() {
       <List>
         {listOfCharities.map((c) => {
           return (
-            <ListItem style={{ height: "80px" }}>
+            <ListItem style={{ height: "80px" }} key={c.address}>
               <View>
                 <Text>
                   {c.name}
@@ -50,7 +64,6 @@ export function App() {
             </ListItem>
           )
         })}
-
       </List>
     </View>
   );
