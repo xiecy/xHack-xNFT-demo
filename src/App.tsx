@@ -1,4 +1,7 @@
-import ReactXnft, { Text, View, List, ListItem, Button, usePublicKey, useConnection } from "react-xnft";
+import ReactXnft, {
+  Text, View, List, ListItem, Button,
+  usePublicKey, useConnection, Stack, useNavigation
+} from "react-xnft";
 import React from "react";
 import { Transaction, SystemProgram, PublicKey } from "@solana/web3.js";
 
@@ -29,8 +32,30 @@ const listOfCharities = [
 ];
 
 export function App() {
+  return (
+    <Stack.Navigator
+      initialRoute={{ name: "donate" }}
+      options={route => {
+        return { title: "Donate" };
+      }}
+    >
+      <Stack.Screen
+        name={"donate"}
+        component={DonateScreen}
+      />
+      <Stack.Screen
+        name={"success"}
+        component={SuccessScreen}
+      />
+    </Stack.Navigator>
+  );
+}
+
+
+export const DonateScreen = () => {
   const publicKey = usePublicKey();
   const connection = useConnection();
+  const nav = useNavigation();
 
   const onClickOnListItem = async (c: any) => {
     // send donation transaction
@@ -44,6 +69,8 @@ export function App() {
 
     const res = await window.xnft.send(tx);
     console.log(res);
+
+    nav.push("success");
   }
 
   return (
@@ -65,6 +92,16 @@ export function App() {
           )
         })}
       </List>
+    </View>
+  );
+}
+
+export const SuccessScreen = () => {
+  return (
+    <View>
+      <Text style={{ color: "black" }}>
+        Donation successful
+      </Text>
     </View>
   );
 }
